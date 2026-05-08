@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AP Calc BC Formula Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0e0f11;
+  --surface: #16181c;
+  --surface2: #1e2026;
+  --border: #2a2d35;
+  --accent: #4f9eff;
+  --accent-dim: #1a3a6a;
+  --green: #3ecf8e;
+  --green-dim: #0f3d28;
+  --red: #f87171;
+  --red-dim: #3d1515;
+  --text: #e8eaf0;
+  --text2: #8b90a0;
+  --text3: #555a6a;
+  --mono: 'DM Mono', monospace;
+  --display: 'Syne', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--display);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem 4rem;
+}
+
+.header {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text3);
+}
+
+.stats {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 13px;
+  color: var(--text2);
+}
+
+.stat-val {
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-val.green { color: var(--green); }
+.stat-val.red { color: var(--red); }
+
+.card {
+  width: 100%;
+  max-width: 720px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem 2.25rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--accent);
+  opacity: 0.6;
+}
+
+.category-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-dim);
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-bottom: 1.25rem;
+}
+
+.question {
+  font-size: 15px;
+  color: var(--text2);
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+.formula-display {
+  font-family: var(--mono);
+  font-size: 20px;
+  color: var(--text);
+  font-weight: 500;
+  margin-bottom: 2rem;
+  line-height: 1.4;
+  padding: 1rem 1.25rem;
+  background: var(--surface2);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+.choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.choice {
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  text-align: left;
+  line-height: 1.5;
+  position: relative;
+}
+
+.choice:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: #1a2030;
+  transform: translateY(-1px);
+}
+
+.choice:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.choice.correct {
+  border-color: var(--green);
+  background: var(--green-dim);
+  color: var(--green);
+}
+
+.choice.wrong {
+  border-color: var(--red);
+  background: var(--red-dim);
+  color: var(--red);
+}
+
+.choice.reveal-correct {
+  border-color: var(--green);
+  background: var(--green-dim);
+  color: var(--green);
+}
+
+.choice:disabled { cursor: default; transform: none; }
+
+.choice-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: var(--text3);
+  display: block;
+  margin-bottom: 4px;
+  font-family: var(--display);
+}
+
+.choice.correct .choice-label,
+.choice.reveal-correct .choice-label { color: var(--green); opacity: 0.7; }
+.choice.wrong .choice-label { color: var(--red); opacity: 0.7; }
+
+.feedback {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.feedback.show { opacity: 1; }
+.feedback.correct-fb { background: var(--green-dim); color: var(--green); }
+.feedback.wrong-fb { background: var(--red-dim); color: var(--red); }
+
+.feedback-icon { font-size: 18px; }
+
+.next-btn {
+  display: none;
+  margin-top: 1.25rem;
+  width: 100%;
+  padding: 0.85rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.next-btn:hover { background: #3a8ef0; transform: translateY(-1px); }
+.next-btn:active { transform: translateY(0); }
+.next-btn.show { display: block; }
+
+.progress-bar {
+  width: 100%;
+  max-width: 720px;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+  opacity: 0.5;
+}
+
+.filter-bar {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 1.25rem;
+}
+
+.filter-btn {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--display);
+}
+
+.filter-btn.active {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.streak-badge {
+  display: none;
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.6rem 1rem;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green);
+  animation: slidein 0.3s ease;
+}
+
+@keyframes slidein {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes shake {
+  0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)}
+}
+
+.shake { animation: shake 0.35s ease; }
+
+@media (max-width: 500px) {
+  .choices { grid-template-columns: 1fr; }
+  .card { padding: 1.5rem; }
+  .formula-display { font-size: 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">AP Calc BC</div>
+  <div class="stats">
+    <span><span class="stat-val green" id="score-correct">0</span> correct</span>
+    <span><span class="stat-val red" id="score-wrong">0</span> wrong</span>
+    <span><span class="stat-val" id="score-total">0</span> total</span>
+  </div>
+</div>
+
+<div class="filter-bar" id="filter-bar"></div>
+
+<div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+
+<div class="card" id="quiz-card">
+  <div class="category-tag" id="q-category">Derivatives</div>
+  <div class="question" id="q-text">What is the derivative of...</div>
+  <div class="formula-display" id="q-formula">f(x) = sin(x)</div>
+  <div class="choices" id="choices-grid"></div>
+  <div class="feedback" id="feedback"></div>
+  <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next question →</button>
+</div>
+
+<div class="streak-badge" id="streak-badge"></div>
+
+<script>
+const ALL_QUESTIONS = [
+  // LIMITS
+  {cat:"Limits", q:"What is this special limit?", formula:"lim(x→0) sin(x)/x", answer:"1", distractors:["0","−1","undefined"]},
+  {cat:"Limits", q:"What is this special limit?", formula:"lim(x→0) (1 − cos x)/x", answer:"0", distractors:["1","−1","½"]},
+  {cat:"Limits", q:"What is this special limit?", formula:"lim(x→∞) (1 + 1/x)ˣ", answer:"e", distractors:["1","∞","0"]},
+  {cat:"Limits", q:"What is this special limit?", formula:"lim(x→0) (cos x − 1)/x²", answer:"−1/2", distractors:["1/2","−1","0"]},
+  {cat:"Limits", q:"When can you apply L'Hôpital's rule?", formula:"lim f(x)/g(x)", answer:"When the limit gives 0/0 or ±∞/∞", distractors:["Any limit involving fractions","When g(x) = 0 at the point","When f and g are both positive"]},
+  {cat:"Limits", q:"State the Mean Value Theorem conclusion.", formula:"f cts on [a,b], diff on (a,b)", answer:"f'(c) = [f(b)−f(a)]/(b−a) for some c in (a,b)", distractors:["f'(c) = [f(a)+f(b)]/2 for some c","f(c) = [f(b)−f(a)]/(b−a) for some c","f'(c) = [f(b)+f(a)]/(b−a) for some c"]},
+  {cat:"Limits", q:"State Rolle's Theorem conclusion.", formula:"f cts [a,b], diff (a,b), f(a)=f(b)", answer:"f'(c) = 0 for some c in (a,b)", distractors:["f(c) = 0 for some c in (a,b)","f'(c) = f(a) for some c in (a,b)","f''(c) = 0 for some c in (a,b)"]},
+  {cat:"Limits", q:"What does the Intermediate Value Theorem guarantee?", formula:"f continuous on [a,b]", answer:"f takes every value between f(a) and f(b)", distractors:["f has a maximum on [a,b]","f'(c) = 0 for some c","f(a) = f(b) for some interior point"]},
+  {cat:"Limits", q:"What is the definition of the derivative?", formula:"f'(x) = ?", answer:"lim[h→0] (f(x+h)−f(x)) / h", distractors:["lim[h→0] (f(x+h)+f(x)) / h","lim[h→0] (f(x)−f(x+h)) / h","lim[h→0] (f(x+h)−f(x)) / x"]},
+
+  // DERIVATIVES — RULES
+  {cat:"Derivatives", q:"Apply the product rule.", formula:"d/dx[u·v]", answer:"u'v + uv'", distractors:["u'v − uv'","u'v'","(u+v)'"]},
+  {cat:"Derivatives", q:"Apply the quotient rule.", formula:"d/dx[u/v]", answer:"(u'v − uv') / v²", distractors:["(u'v + uv') / v²","(uv' − u'v) / v²","(u'v − uv') / v"]},
+  {cat:"Derivatives", q:"Apply the chain rule.", formula:"d/dx[f(g(x))]", answer:"f'(g(x)) · g'(x)", distractors:["f'(g(x)) · f'(x)","f(g'(x)) · g'(x)","f'(g(x)) + g'(x)"]},
+  {cat:"Derivatives", q:"What is the inverse function derivative formula?", formula:"(f⁻¹)'(a) = ?", answer:"1 / f'(f⁻¹(a))", distractors:["1 / f'(a)","f'(f⁻¹(a))","−1 / f'(f⁻¹(a))"]},
+
+  // DERIVATIVES — TRIG
+  {cat:"Derivatives", q:"Differentiate.", formula:"d/dx[tan u]", answer:"sec²u · u'", distractors:["sec u tan u · u'","−csc²u · u'","sec²u"]},
+  {cat:"Derivatives", q:"Differentiate.", formula:"d/dx[sec u]", answer:"sec u tan u · u'", distractors:["sec²u · u'","−sec u tan u · u'","csc u cot u · u'"]},
+  {cat:"Derivatives", q:"Differentiate.", formula:"d/dx[cot u]", answer:"−csc²u · u'", distractors:["csc²u · u'","sec²u · u'","−sec²u · u'"]},
+  {cat:"Derivatives", q:"Differentiate.", formula:"d/dx[csc u]", answer:"−csc u cot u · u'", distractors:["csc u cot u · u'","−sec u tan u · u'","csc u tan u · u'"]},
+
+  // DERIVATIVES — INVERSE TRIG
+  {cat:"Derivatives", q:"Differentiate (with chain rule).", formula:"d/dx[arcsin u]", answer:"u' / √(1−u²)", distractors:["u' / √(1+u²)","−u' / √(1−u²)","u' / (1+u²)"]},
+  {cat:"Derivatives", q:"Differentiate (with chain rule).", formula:"d/dx[arccos u]", answer:"−u' / √(1−u²)", distractors:["u' / √(1−u²)","−u' / √(1+u²)","−u' / (1+u²)"]},
+  {cat:"Derivatives", q:"Differentiate (with chain rule).", formula:"d/dx[arctan u]", answer:"u' / (1+u²)", distractors:["u' / (1−u²)","u' / √(1+u²)","−u' / (1+u²)"]},
+  {cat:"Derivatives", q:"Differentiate (with chain rule).", formula:"d/dx[arcsec u]", answer:"u' / (|u|√(u²−1))", distractors:["u' / (u√(u²−1))","u' / (|u|√(1−u²))","−u' / (|u|√(u²−1))"]},
+
+  // DERIVATIVES — EXP/LOG
+  {cat:"Derivatives", q:"Differentiate.", formula:"d/dx[aˣ]", answer:"aˣ ln(a)", distractors:["aˣ","x·aˣ⁻¹","aˣ / ln(a)"]},
+  {cat:"Derivatives", q:"Differentiate.", formula:"d/dx[logₐ u]", answer:"u' / (u ln a)", distractors:["u' / u","u' · ln(a) / u","1 / (u ln a)"]},
+
+  // INTEGRALS — FTC
+  {cat:"Integrals", q:"Apply FTC Part 1 with chain rule.", formula:"d/dx[∫ₐᵍ⁽ˣ⁾ f(t) dt]", answer:"f(g(x)) · g'(x)", distractors:["f(g(x))","f'(g(x)) · g'(x)","f(g(x)) + g'(x)"]},
+  {cat:"Integrals", q:"What does the Net Change Theorem state?", formula:"∫ₐᵇ f'(x) dx = ?", answer:"f(b) − f(a)", distractors:["f'(b) − f'(a)","f(a) − f(b)","f(b) + f(a)"]},
+
+  // INTEGRALS — BASIC
+  {cat:"Integrals", q:"Evaluate the antiderivative.", formula:"∫ tan x dx", answer:"ln|sec x| + C", distractors:["ln|cos x| + C","−ln|cos x| + C","sec²x + C"]},
+  {cat:"Integrals", q:"Evaluate the antiderivative.", formula:"∫ sec x dx", answer:"ln|sec x + tan x| + C", distractors:["ln|sec x − tan x| + C","sec x tan x + C","ln|tan x| + C"]},
+  {cat:"Integrals", q:"Evaluate the antiderivative.", formula:"∫ cot x dx", answer:"ln|sin x| + C", distractors:["−ln|sin x| + C","ln|cos x| + C","−csc²x + C"]},
+  {cat:"Integrals", q:"Evaluate the antiderivative.", formula:"∫ csc x dx", answer:"−ln|csc x + cot x| + C", distractors:["ln|csc x + cot x| + C","−ln|csc x − cot x| + C","csc x cot x + C"]},
+  {cat:"Integrals", q:"Evaluate the antiderivative.", formula:"∫ aˣ dx", answer:"aˣ / ln(a) + C", distractors:["aˣ ln(a) + C","aˣ + C","x·aˣ⁻¹ + C"]},
+
+  // INTEGRALS — INVERSE TRIG
+  {cat:"Integrals", q:"Evaluate the antiderivative.", formula:"∫ du / √(a²−u²)", answer:"arcsin(u/a) + C", distractors:["arctan(u/a) + C","(1/a) arcsin(u/a) + C","arcsin(u) + C"]},
+  {cat:"Integrals", q:"Evaluate the antiderivative.", formula:"∫ du / (a²+u²)", answer:"(1/a) arctan(u/a) + C", distractors:["arctan(u/a) + C","(1/a) arctan(u) + C","(1/a²) arctan(u/a) + C"]},
+
+  // INTEGRALS — TECHNIQUES
+  {cat:"Integrals", q:"State the integration by parts formula.", formula:"∫ u dv = ?", answer:"uv − ∫ v du", distractors:["uv + ∫ v du","u'v − ∫ v du","uv − ∫ u dv"]},
+  {cat:"Integrals", q:"What is the LIATE rule for?", formula:"Integration by parts — choose u as...", answer:"The term earliest in: Log, Inv trig, Alg, Trig, Exp", distractors:["The term latest in: Log, Inv trig, Alg, Trig, Exp","The simpler-looking term","The term with the highest power"]},
+
+  // INTEGRALS — PROPERTIES
+  {cat:"Integrals", q:"Evaluate using symmetry.", formula:"∫₋ₐᵃ f(x) dx, where f is ODD", answer:"0", distractors:["2∫₀ᵃ f(x) dx","∫₀ᵃ f(x) dx","undefined without more info"]},
+  {cat:"Integrals", q:"Evaluate using symmetry.", formula:"∫₋ₐᵃ f(x) dx, where f is EVEN", answer:"2∫₀ᵃ f(x) dx", distractors:["0","∫₀ᵃ f(x) dx","−2∫₀ᵃ f(x) dx"]},
+
+  // APPLICATIONS
+  {cat:"Applications", q:"What is the average value formula?", formula:"f_avg on [a,b]", answer:"1/(b−a) · ∫ₐᵇ f(x) dx", distractors:["1/(b+a) · ∫ₐᵇ f(x) dx","∫ₐᵇ f(x) dx / b","(b−a) · ∫ₐᵇ f(x) dx"]},
+  {cat:"Applications", q:"How do you find total distance traveled?", formula:"particle with velocity v(t) on [a,b]", answer:"∫ₐᵇ |v(t)| dt", distractors:["∫ₐᵇ v(t) dt","v(b) − v(a)","|∫ₐᵇ v(t) dt|"]},
+  {cat:"Applications", q:"When is a particle speeding up?", formula:"velocity v(t), acceleration a(t)", answer:"When v(t) and a(t) have the same sign", distractors:["When a(t) > 0","When v(t) > 0","When |v(t)| is increasing"]},
+  {cat:"Applications", q:"What does f''(x) > 0 mean?", formula:"second derivative test for concavity", answer:"f is concave up on that interval", distractors:["f is concave down on that interval","f has a local minimum","f is increasing on that interval"]},
+  {cat:"Applications", q:"When does an inflection point occur?", formula:"inflection point at x = c", answer:"f'' changes sign at x = c", distractors:["f''(c) = 0","f'(c) = 0","f'' > 0 at x = c"]},
+  {cat:"Applications", q:"What is the linearization of f near x = a?", formula:"L(x) = ?", answer:"f(a) + f'(a)(x−a)", distractors:["f(a) + f''(a)(x−a)","f(a) − f'(a)(x−a)","f'(a) + f(a)(x−a)"]},
+
+  // AREA & VOLUME
+  {cat:"Area & Volume", q:"Volume by disk method about the x-axis.", formula:"V = ?", answer:"π ∫ₐᵇ [f(x)]² dx", distractors:["π ∫ₐᵇ f(x) dx","2π ∫ₐᵇ f(x) dx","π ∫ₐᵇ [f(x)]² dx²"]},
+  {cat:"Area & Volume", q:"Volume by washer method about the x-axis.", formula:"V = ?, R = outer, r = inner radius", answer:"π ∫ₐᵇ ([R(x)]² − [r(x)]²) dx", distractors:["π ∫ₐᵇ ([R(x)] − [r(x)])² dx","π ∫ₐᵇ ([R(x)]² + [r(x)]²) dx","2π ∫ₐᵇ ([R(x)]² − [r(x)]²) dx"]},
+  {cat:"Area & Volume", q:"Volume by shell method about the y-axis.", formula:"V = ?", answer:"2π ∫ₐᵇ x · f(x) dx", distractors:["π ∫ₐᵇ x · f(x) dx","2π ∫ₐᵇ [f(x)]² dx","2π ∫ₐᵇ f(x) dx"]},
+  {cat:"Area & Volume", q:"Arc length of f(x) on [a,b].", formula:"L = ?", answer:"∫ₐᵇ √(1 + [f'(x)]²) dx", distractors:["∫ₐᵇ √(1 + [f(x)]²) dx","∫ₐᵇ (1 + [f'(x)]²) dx","∫ₐᵇ √(1 − [f'(x)]²) dx"]},
+  {cat:"Area & Volume", q:"Cross-section volume: square cross sections perpendicular to x-axis.", formula:"base = f(x)−g(x), A(x) = ?", answer:"[f(x) − g(x)]²", distractors:["½[f(x) − g(x)]²","(√3/4)[f(x) − g(x)]²","π/8 · [f(x) − g(x)]²"]},
+  {cat:"Area & Volume", q:"Cross-section volume: equilateral triangle cross sections.", formula:"base = f(x)−g(x), A(x) = ?", answer:"(√3/4)[f(x) − g(x)]²", distractors:["½[f(x) − g(x)]²","[f(x) − g(x)]²","(√3/2)[f(x) − g(x)]²"]},
+  {cat:"Area & Volume", q:"Cross-section volume: semicircle cross sections (diameter = base).", formula:"base = f(x)−g(x), A(x) = ?", answer:"(π/8)[f(x) − g(x)]²", distractors:["(π/4)[f(x) − g(x)]²","(π/2)[f(x) − g(x)]²","(π/8)[f(x) − g(x)]"]},
+  {cat:"Area & Volume", q:"Cross-section: isosceles right triangle, leg = base.", formula:"base = f(x)−g(x), A(x) = ?", answer:"½[f(x) − g(x)]²", distractors:["¼[f(x) − g(x)]²","[f(x) − g(x)]²","(√3/4)[f(x) − g(x)]²"]},
+  {cat:"Area & Volume", q:"Cross-section: isosceles right triangle, hypotenuse = base.", formula:"base = f(x)−g(x), A(x) = ?", answer:"¼[f(x) − g(x)]²", distractors:["½[f(x) − g(x)]²","[f(x) − g(x)]²","(1/8)[f(x) − g(x)]²"]},
+
+  // PARAMETRIC
+  {cat:"Parametric", q:"Find dy/dx for parametric equations.", formula:"x = x(t), y = y(t)", answer:"(dy/dt) / (dx/dt)", distractors:["(dx/dt) / (dy/dt)","dy/dt · dx/dt","(d²y/dt²) / (d²x/dt²)"]},
+  {cat:"Parametric", q:"Find the second derivative d²y/dx² parametrically.", formula:"x = x(t), y = y(t)", answer:"[d/dt(dy/dx)] / (dx/dt)", distractors:["(d²y/dt²) / (d²x/dt²)","[d/dt(dy/dx)] / (dy/dt)","(d²y/dt²) / (dx/dt)"]},
+  {cat:"Parametric", q:"Parametric arc length formula.", formula:"L = ?", answer:"∫ₐᵇ √[(dx/dt)² + (dy/dt)²] dt", distractors:["∫ₐᵇ √[(dx/dt) + (dy/dt)] dt","∫ₐᵇ [(dx/dt)² + (dy/dt)²] dt","∫ₐᵇ √[(dx/dt)² − (dy/dt)²] dt"]},
+  {cat:"Parametric", q:"What is the speed of a particle in parametric motion?", formula:"|v(t)| = ?", answer:"√[(dx/dt)² + (dy/dt)²]", distractors:["(dx/dt) + (dy/dt)","√[(dx/dt)² − (dy/dt)²]","|(dx/dt)| + |(dy/dt)|"]},
+
+  // POLAR
+  {cat:"Polar", q:"Convert: x in terms of r and θ.", formula:"x = ?", answer:"r cosθ", distractors:["r sinθ","r tanθ","r / cosθ"]},
+  {cat:"Polar", q:"Convert: y in terms of r and θ.", formula:"y = ?", answer:"r sinθ", distractors:["r cosθ","r / sinθ","r tanθ"]},
+  {cat:"Polar", q:"Convert: r² in Cartesian.", formula:"r² = ?", answer:"x² + y²", distractors:["x² − y²","x + y","√(x² + y²)"]},
+  {cat:"Polar", q:"Area enclosed by a polar curve.", formula:"A = ?", answer:"½ ∫ₐᵇ [r(θ)]² dθ", distractors:["∫ₐᵇ [r(θ)]² dθ","½ ∫ₐᵇ r(θ) dθ","π ∫ₐᵇ [r(θ)]² dθ"]},
+  {cat:"Polar", q:"Area between two polar curves.", formula:"A = ?, r_outer and r_inner", answer:"½ ∫ₐᵇ ([r_out]² − [r_in]²) dθ", distractors:["½ ∫ₐᵇ ([r_out] − [r_in])² dθ","∫ₐᵇ ([r_out]² − [r_in]²) dθ","½ ∫ₐᵇ ([r_out]² + [r_in]²) dθ"]},
+  {cat:"Polar", q:"Arc length of a polar curve.", formula:"L = ?", answer:"∫ₐᵇ √(r² + (dr/dθ)²) dθ", distractors:["∫ₐᵇ √(r² − (dr/dθ)²) dθ","½ ∫ₐᵇ √(r² + (dr/dθ)²) dθ","∫ₐᵇ (r² + (dr/dθ)²) dθ"]},
+  {cat:"Polar", q:"How many petals does this rose curve have?", formula:"r = a cos(nθ), n even", answer:"2n petals", distractors:["n petals","n/2 petals","4n petals"]},
+  {cat:"Polar", q:"How many petals does this rose curve have?", formula:"r = a cos(nθ), n odd", answer:"n petals", distractors:["2n petals","n+1 petals","n/2 petals"]},
+
+  // DIFFERENTIAL EQUATIONS
+  {cat:"Diff Eq", q:"Solve the separable DE.", formula:"dy/dx = ky", answer:"y = Ce^(kx)", distractors:["y = Ce^(x)","y = kCe^(x)","y = Ce^(kx²)"]},
+  {cat:"Diff Eq", q:"Logistic growth differential equation.", formula:"dP/dt = ?", answer:"kP(1 − P/L)", distractors:["kP(1 + P/L)","kP − L","k(L − P)"]},
+  {cat:"Diff Eq", q:"Logistic growth solution.", formula:"P(t) = ?, A = (L−P₀)/P₀", answer:"L / (1 + Ae^(−kt))", distractors:["L / (1 − Ae^(−kt))","L / (1 + Ae^(kt))","A / (1 + Le^(−kt))"]},
+  {cat:"Diff Eq", q:"At what population does logistic growth rate peak?", formula:"dP/dt = kP(1−P/L)", answer:"P = L/2", distractors:["P = L","P = L/4","P = 2L"]},
+  {cat:"Diff Eq", q:"Euler's method step formula.", formula:"yₙ₊₁ = ?", answer:"yₙ + h · f(xₙ, yₙ)", distractors:["yₙ + h · f(xₙ₊₁, yₙ)","yₙ − h · f(xₙ, yₙ)","yₙ · h · f(xₙ, yₙ)"]},
+  {cat:"Diff Eq", q:"When does Euler's method underestimate?", formula:"approximating a solution curve", answer:"When the solution curve is concave up", distractors:["When the solution curve is concave down","When the step size h is small","When k > 0 in the DE"]},
+
+  // SERIES — CONVERGENCE
+  {cat:"Series", q:"The nth term test: if lim aₙ ≠ 0, the series...", formula:"Σ aₙ", answer:"diverges", distractors:["converges","converges absolutely","is inconclusive"]},
+  {cat:"Series", q:"p-series convergence condition.", formula:"Σ 1/nᵖ", answer:"Converges if p > 1, diverges if p ≤ 1", distractors:["Converges if p ≥ 1, diverges if p < 1","Converges if p > 0, diverges if p ≤ 0","Converges if p > 2, diverges if p ≤ 2"]},
+  {cat:"Series", q:"Geometric series sum (when it converges).", formula:"Σ arⁿ, |r| < 1", answer:"a / (1−r)", distractors:["a / (1+r)","a(1−r)","r / (1−a)"]},
+  {cat:"Series", q:"Ratio test: what does L < 1 tell you?", formula:"L = lim|aₙ₊₁/aₙ|", answer:"Series converges absolutely", distractors:["Series diverges","Series converges conditionally","Test is inconclusive"]},
+  {cat:"Series", q:"What does L = 1 mean in the ratio test?", formula:"L = lim|aₙ₊₁/aₙ| = 1", answer:"Inconclusive — use another test", distractors:["Series converges","Series diverges","Series converges conditionally"]},
+  {cat:"Series", q:"Alternating series test conditions.", formula:"Σ (−1)ⁿ bₙ converges when...", answer:"bₙ > 0, bₙ decreasing, lim bₙ = 0", distractors:["bₙ > 0 and lim bₙ = 0 only","bₙ decreasing and bounded","Σ|bₙ| converges"]},
+  {cat:"Series", q:"Alternating series error bound.", formula:"|error| ≤ ?", answer:"|first omitted term|", distractors:["|last included term|","M|x−a|ⁿ⁺¹/(n+1)!","1/n of the last term"]},
+  {cat:"Series", q:"Lagrange error bound formula.", formula:"|Rₙ(x)| ≤ ?", answer:"M|x−a|ⁿ⁺¹ / (n+1)!", distractors:["M|x−a|ⁿ / n!","M|x−a|ⁿ⁺¹ / n!","M|x−a|ⁿ / (n+1)!"]},
+
+  // SERIES — MACLAURIN
+  {cat:"Series", q:"Maclaurin series for eˣ.", formula:"eˣ = ?", answer:"Σ xⁿ/n! = 1 + x + x²/2! + x³/3! + ...", distractors:["Σ xⁿ = 1 + x + x² + x³ + ...","Σ (−1)ⁿxⁿ/n! = 1 − x + x²/2! − ...","Σ xⁿ/(2n)! = 1 + x²/2! + x⁴/4! + ..."]},
+  {cat:"Series", q:"Maclaurin series for sin x.", formula:"sin x = ?", answer:"x − x³/3! + x⁵/5! − x⁷/7! + ...", distractors:["1 − x²/2! + x⁴/4! − x⁶/6! + ...","x + x³/3! + x⁵/5! + x⁷/7! + ...","x − x²/2! + x³/3! − x⁴/4! + ..."]},
+  {cat:"Series", q:"Maclaurin series for cos x.", formula:"cos x = ?", answer:"1 − x²/2! + x⁴/4! − x⁶/6! + ...", distractors:["x − x³/3! + x⁵/5! − x⁷/7! + ...","1 + x²/2! + x⁴/4! + x⁶/6! + ...","1 − x²/2! + x³/3! − x⁴/4! + ..."]},
+  {cat:"Series", q:"Maclaurin series for 1/(1−x).", formula:"1/(1−x) = ?", answer:"1 + x + x² + x³ + ... , |x| < 1", distractors:["1 − x + x² − x³ + ... , |x| < 1","1 + x + x²/2! + x³/3! + ...","1 + x + x²/2 + x³/3 + ..."]},
+  {cat:"Series", q:"Maclaurin series for ln(1+x).", formula:"ln(1+x) = ?", answer:"x − x²/2 + x³/3 − x⁴/4 + ...", distractors:["x + x²/2 + x³/3 + x⁴/4 + ...","x − x²/2! + x³/3! − x⁴/4! + ...","1 − x + x²/2 − x³/3 + ..."]},
+  {cat:"Series", q:"What is the interval of convergence for ln(1+x)?", formula:"Σ (−1)ⁿ⁺¹xⁿ/n", answer:"−1 < x ≤ 1", distractors:["−1 ≤ x ≤ 1","−1 < x < 1","0 < x ≤ 1"]},
+
+  // TRIG IDENTITIES
+  {cat:"Trig Identities", q:"Pythagorean identity.", formula:"sin²x + cos²x = ?", answer:"1", distractors:["0","sin(2x)","2sinx cosx"]},
+  {cat:"Trig Identities", q:"Pythagorean identity.", formula:"1 + tan²x = ?", answer:"sec²x", distractors:["csc²x","sec x","tan²x + 1 = sec x"]},
+  {cat:"Trig Identities", q:"Pythagorean identity.", formula:"1 + cot²x = ?", answer:"csc²x", distractors:["sec²x","cot²x + 1 = csc x","tan²x"]},
+  {cat:"Trig Identities", q:"Double angle formula.", formula:"sin(2x) = ?", answer:"2 sin x cos x", distractors:["sin²x − cos²x","2 sin²x","cos²x − sin²x"]},
+  {cat:"Trig Identities", q:"Double angle formula.", formula:"cos(2x) = ? (in terms of cos only)", answer:"2cos²x − 1", distractors:["1 − 2cos²x","2cos²x + 1","cos²x − 1"]},
+  {cat:"Trig Identities", q:"Double angle formula.", formula:"cos(2x) = ? (in terms of sin only)", answer:"1 − 2sin²x", distractors:["2sin²x − 1","1 + 2sin²x","sin²x − 1"]},
+  {cat:"Trig Identities", q:"Power reducing identity — critical for integration.", formula:"sin²x = ?", answer:"(1 − cos 2x) / 2", distractors:["(1 + cos 2x) / 2","(cos 2x − 1) / 2","1 − cos²x"]},
+  {cat:"Trig Identities", q:"Power reducing identity — critical for integration.", formula:"cos²x = ?", answer:"(1 + cos 2x) / 2", distractors:["(1 − cos 2x) / 2","(cos 2x + 1) / 4","1 − sin²x"]},
+  {cat:"Trig Identities", q:"Product to single trig.", formula:"sin x cos x = ?", answer:"sin(2x) / 2", distractors:["sin(2x)","cos(2x) / 2","2 sin(2x)"]},
+  {cat:"Trig Identities", q:"Sum formula.", formula:"sin(a+b) = ?", answer:"sin a cos b + cos a sin b", distractors:["sin a cos b − cos a sin b","cos a cos b − sin a sin b","sin a sin b + cos a cos b"]},
+  {cat:"Trig Identities", q:"Sum formula.", formula:"cos(a+b) = ?", answer:"cos a cos b − sin a sin b", distractors:["cos a cos b + sin a sin b","sin a cos b − cos a sin b","cos a sin b − sin a cos b"]},
+  {cat:"Trig Identities", q:"Exact trig value.", formula:"sin(π/4) = ?", answer:"√2/2", distractors:["√3/2","1/2","1"]},
+  {cat:"Trig Identities", q:"Exact trig value.", formula:"sin(π/3) = ?", answer:"√3/2", distractors:["√2/2","1/2","√3/3"]},
+  {cat:"Trig Identities", q:"Exact trig value.", formula:"cos(π/6) = ?", answer:"√3/2", distractors:["√2/2","1/2","1"]},
+  {cat:"Trig Identities", q:"Exact trig value.", formula:"tan(π/3) = ?", answer:"√3", distractors:["1","√3/3","1/√2"]},
+];
+
+const CATS = [...new Set(ALL_QUESTIONS.map(q=>q.cat))];
+let activeCats = new Set(CATS);
+let pool = [];
+let current = null;
+let correct = 0, wrong = 0, total = 0;
+let streak = 0;
+let answered = false;
+
+function buildPool() {
+  pool = ALL_QUESTIONS.filter(q => activeCats.has(q.cat));
+  if (pool.length === 0) pool = [...ALL_QUESTIONS];
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function buildFilters() {
+  const bar = document.getElementById('filter-bar');
+  const allBtn = document.createElement('button');
+  allBtn.className = 'filter-btn active';
+  allBtn.id = 'filter-all';
+  allBtn.textContent = 'All';
+  allBtn.onclick = () => {
+    activeCats = new Set(CATS);
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    allBtn.classList.add('active');
+    buildPool();
+    nextQuestion();
+  };
+  bar.appendChild(allBtn);
+
+  CATS.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn active';
+    btn.textContent = cat;
+    btn.dataset.cat = cat;
+    btn.onclick = () => {
+      document.getElementById('filter-all').classList.remove('active');
+      btn.classList.toggle('active');
+      if (btn.classList.contains('active')) activeCats.add(cat);
+      else activeCats.delete(cat);
+      if (activeCats.size === CATS.size) document.getElementById('filter-all').classList.add('active');
+      buildPool();
+      nextQuestion();
+    };
+    bar.appendChild(btn);
+  });
+}
+
+function nextQuestion() {
+  answered = false;
+  document.getElementById('next-btn').classList.remove('show');
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback';
+  fb.textContent = '';
+
+  buildPool();
+  const q = pool[Math.floor(Math.random() * pool.length)];
+  current = q;
+
+  document.getElementById('q-category').textContent = q.cat;
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('q-formula').textContent = q.formula;
+
+  const choices = shuffle([q.answer, ...q.distractors.slice(0,3)]);
+  const labels = ['A','B','C','D'];
+  const grid = document.getElementById('choices-grid');
+  grid.innerHTML = '';
+
+  choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice';
+    btn.innerHTML = `<span class="choice-label">${labels[i]}</span>${c}`;
+    btn.onclick = () => selectAnswer(btn, c, q.answer);
+    grid.appendChild(btn);
+  });
+
+  // Update progress fill (cycles through visually)
+  const pct = ((total % 20) / 20) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+function selectAnswer(btn, chosen, correct_ans) {
+  if (answered) return;
+  answered = true;
+  total++;
+
+  const allBtns = document.querySelectorAll('.choice');
+  allBtns.forEach(b => b.disabled = true);
+
+  const fb = document.getElementById('feedback');
+
+  if (chosen === correct_ans) {
+    btn.classList.add('correct');
+    fb.className = 'feedback correct-fb show';
+    fb.innerHTML = '<span class="feedback-icon">✓</span> Correct!';
+    correct++;
+    streak++;
+    if (streak > 0 && streak % 5 === 0) showStreak(streak);
+  } else {
+    btn.classList.add('wrong');
+    document.getElementById('score-wrong').parentElement.classList.add('shake');
+    setTimeout(() => document.getElementById('score-wrong').parentElement.classList.remove('shake'), 400);
+    // reveal correct
+    allBtns.forEach(b => {
+      if (b.textContent.includes(correct_ans) || b.innerHTML.includes(correct_ans)) {
+        b.classList.add('reveal-correct');
+      }
+    });
+    fb.className = 'feedback wrong-fb show';
+    fb.innerHTML = `<span class="feedback-icon">✗</span> Correct answer: <strong style="margin-left:6px;font-family:var(--mono)">${correct_ans}</strong>`;
+    wrong++;
+    streak = 0;
+  }
+
+  document.getElementById('score-correct').textContent = correct;
+  document.getElementById('score-wrong').textContent = wrong;
+  document.getElementById('score-total').textContent = total;
+
+  const pct = ((total % 20) / 20) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+
+  document.getElementById('next-btn').classList.add('show');
+}
+
+function showStreak(n) {
+  const badge = document.getElementById('streak-badge');
+  badge.textContent = `${n} streak 🔥`;
+  badge.style.display = 'block';
+  setTimeout(() => badge.style.display = 'none', 2500);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && answered) { nextQuestion(); return; }
+  if (answered) return;
+  const map = {'1':'A','2':'B','3':'C','4':'D','a':'A','b':'B','c':'C','d':'D'};
+  const label = map[e.key.toLowerCase()];
+  if (label) {
+    const btns = document.querySelectorAll('.choice');
+    btns.forEach(b => { if (b.querySelector('.choice-label').textContent === label) b.click(); });
+  }
+});
+
+buildFilters();
+buildPool();
+nextQuestion();
+</script>
+</body>
+</html>
